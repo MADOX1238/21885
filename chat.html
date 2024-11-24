@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدردشة العامة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* خلفية متحركة */
+        .chat-container {
+            background-image: url('https://i.pinimg.com/originals/04/e4/7e/04e47e2855c78b802b523ff6d1357b25.gif');
+            background-size: cover;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* الحاوية الخاصة بالدردشة */
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 50px;
+            background-color: rgba(0, 0, 0, 0.5);  /* تأثير شبه شفاف على الخلفية */
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        /* إدخال الرسالة */
+        .message-input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* زر إرسال الرسالة */
+        .send-btn {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        /* الرسائل الخاصة بكل مستخدم */
+        .user-message {
+            background-color: rgba(0, 123, 255, 0.8);
+            margin-left: auto;
+        }
+
+        .other-message {
+            background-color: rgba(0, 255, 0, 0.8);
+            margin-right: auto;
+        }
+
+        /* قائمة المتواجدين الآن */
+        .user-list {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+            max-height: 80%;
+            overflow-y: auto;
+            width: 200px;
+        }
+
+        .user-list h3 {
+            margin: 0;
+            color: #fff;
+        }
+
+        .user-list ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-list li {
+            color: white;
+            margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- قائمة المتواجدين الآن -->
+        <div class="user-list">
+            <h3>المتواجدين الآن</h3>
+            <ul id="userList">
+                <!-- سيتم إضافة الأسماء هنا بواسطة JavaScript -->
+            </ul>
+        </div>
+
+        <!-- حاوية الدردشة -->
+        <div class="chat-box" id="chatBox">
+            <!-- الرسائل ستظهر هنا -->
+        </div>
+
+        <!-- إدخال الرسالة -->
+        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <input type="text" id="messageInput" class="message-input" placeholder="اكتب رسالتك هنا">
+            <button class="send-btn" id="sendBtn">إرسال</button>
+        </div>
+    </div>
+
+    <script>
+        // استرجاع الاسم واللون من sessionStorage
+        const username = sessionStorage.getItem('username');
+        const userColor = sessionStorage.getItem('usercolor');
+
+        // إذا لم يكن هناك اسم، الرجوع للصفحة الرئيسية
+        if (!username || !userColor) {
+            window.location.href = "index.html";
+        }
+
+        // إضافة اسم المستخدم إلى قائمة المتواجدين الآن
+        const userList = document.getElementById("userList");
+        const userItem = document.createElement("li");
+        userItem.textContent = username;
+        userItem.style.color = userColor;
+        userList.appendChild(userItem);
+
+        // إضافة الرسالة إلى الدردشة العامة
+        document.getElementById("sendBtn").addEventListener("click", function() {
+            const messageInput = document.getElementById("messageInput");
+            const messageText = messageInput.value.trim();
+
+            if (messageText) {
+                const chatBox = document.getElementById("chatBox");
+
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", "user-message");
+                messageDiv.style.backgroundColor = userColor;
+                messageDiv.textContent = `${username}: ${messageText}`;
+
+                chatBox.appendChild(messageDiv);
+
+                // جعل الدردشة تتنقل لأسفل تلقائياً
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // مسح مربع النص
+                messageInput.value = "";
+            }
+        });
+
+        // غلق الصفحة وإزالة المستخدم من قائمة المتواجدين الآن
+        window.addEventListener('beforeunload', function() {
+            // تأكد من إزالة اسم المستخدم عند غلق الصفحة
+            const userItems = userList.getElementsByTagName('li');
+            for (let i = 0; i < userItems.length; i++) {
+                if (userItems[i].textContent === username) {
+                    userList.removeChild(userItems[i]);
+                    break;
+                }
+            }
+        });
+    </script>
+
+</body></html>
